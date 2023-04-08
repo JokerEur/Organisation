@@ -23,7 +23,9 @@ def db_create_tables():
       name TEXT NOT NULL,
       type TEXT NOT NULL,
       login TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL)''')
+      password TEXT NOT NULL)
+
+     ''')
 
     cursor.execute('''CREATE TABLE objects(
       id INTEGER,
@@ -35,12 +37,14 @@ def db_create_tables():
       square REAL NOT NULL,
       owner TEXT NOT NULL,
       actual_user TEXT NOT NULL,
+      additional_info TEXT,
       media BLOB NOT NULL,
       PRIMARY KEY(id, county , address)
+
     )''')
 
     cursor.execute('''CREATE TABLE tasks(
-      id INTEGER PRIMARY KEY,
+      id INTEGER,
       object_id INTEGER NOT NULL,
       object_county TEXT NOT NULL,
       object_address TEXT NOT NULL,
@@ -48,11 +52,33 @@ def db_create_tables():
       status TEXT NOT NULL,
       time_stamp NUMERIC NOT NULL,
       deadline NUMERIC NOT NULL,
-      group TEXT NOT NULL, 
+      groups TEXT NOT NULL, 
       report TEXT NULL,
       feedback TEXT NULL,
+      PRIMARY KEY (id , groups)
       FOREIGN KEY (object_id ,object_county, object_address) REFERENCES objects(id , county, address)
       
+    )''')
+
+
+    cursor.execute('''CREATE TABLE agenda(
+      id INTEGER,
+      task_id INTEGER NOT NULL,
+      groups TEXT NOT NULL,
+      date NUMERIC NOT NULL,
+      status NUMERIC TRUE,
+      FOREIGN KEY (task_id , groups) REFERENCES tasks(id, groups)
+      PRIMARY KEY (id , groups)
+    )''')
+
+    cursor.execute('''CREATE TABLE meeting(
+      id INTEGER PRIMARY KEY,
+      agenda_id INTEGER NOT NULL,
+      groups TEXT NOT NULL,
+      date_of_meeting BLOB NOT NULL,
+      reference TEXT,
+      FOREIGN KEY(agenda_id , groups) REFERENCES agenda(id , groups)
+
     )''')
 
     connection.commit()
