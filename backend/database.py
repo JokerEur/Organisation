@@ -1,13 +1,13 @@
 import sqlite3
 
-connection = sqlite3.connect('db/database.db')
+connection = sqlite3.connect('backend/db/database.db')
 cursor = connection.cursor()
 
 
-def db_start():
+async def db_start():
 
     with connection as con:
-        tables = ["'users'", "'objects'", "'tasks'"]
+        tables = ["'users'", "'objects'", "'tasks'", "'meeting'", "'agenda'"]
         table_names = ','.join(tables)
 
         SQL = f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name in ({table_names});"
@@ -16,7 +16,7 @@ def db_start():
             db_create_tables()
 
 
-def db_create_tables():
+async def db_create_tables():
 
     cursor.execute('''CREATE TABLE users(
       id INTEGER PRIMARY KEY,
@@ -85,22 +85,22 @@ def db_create_tables():
     # connection.close()
 
 
-def create_user(id, name, type, login, password):
+async def create_user(id, name, type, login, password):
     cursor.execute("INSERT OR IGNORE INTO users VALUES(?, ?, ?, ?, ?)",
                    (id, name, type, login, password))
     connection.commit()
 
 
-def get_user_by_id(id):
+async def get_user_by_id(id):
     user = cursor.execute("SELECT * FROM users WHERE id == '{key}'".format(key=id)).fetchone()
     return user
 
 
-def remove_user_by_id(id):
+async def remove_user_by_id(id):
     cursor.execute("DELETE FROM users WHERE customer_id == '{key}'".format(key=id))
 
 
-def create_objects(id,
+async def create_objects(id,
                    county,
                    district,
                    address,
@@ -115,17 +115,17 @@ def create_objects(id,
     connection.commit()
 
 
-def get_objects_by_id_country_address(id, county, address):
+async def get_objects_by_id_country_address(id, county, address):
     user = cursor.execute(
         "SELECT * FROM users WHERE (id, county, address) == '{key}'".format(key=(id, county, address))).fetchone()
     return user
 
 
-def remove_objects_by_id_country_address(id, county, address):
+async def remove_objects_by_id_country_address(id, county, address):
     cursor.execute("DELETE FROM users WHERE (id, county, address) == '{key}'".format(key=(id, county, address)))
 
 
-def create_tasks(id,
+async def create_tasks(id,
                  object_id,
                  object_county,
                  object_address,
@@ -141,11 +141,11 @@ def create_tasks(id,
     connection.commit()
 
 
-def get_objects_by_id(id):
+async def get_objects_by_id(id):
     user = cursor.execute(
         "SELECT * FROM users WHERE id == '{key}'".format(key=id)).fetchone()
     return user
 
 
-def remove_objects_by_id(id):
+async def remove_objects_by_id(id):
     cursor.execute("DELETE FROM users WHERE id == '{key}'".format(key=id))
