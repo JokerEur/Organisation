@@ -1,5 +1,3 @@
-import sqlite3
-
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -10,8 +8,6 @@ import json
 import database
 
 database.db_start()
-a = database.create_user(1)
-print(a)
 
 
 @csrf_exempt

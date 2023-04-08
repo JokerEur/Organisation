@@ -1,15 +1,22 @@
 import sqlite3
 
-# connection = sqlite3.connect('db/database.db')
-# cursor = connection.cursor()
+connection = sqlite3.connect('db/database.db')
+cursor = connection.cursor()
+
 
 def db_start():
-    global connection, cursor
 
-    connection = sqlite3.connect('db/database.db')
-    # connection.execute("PRAGMA foreign_keys = 1")
+    with connection as con:
+        tables = ["'users'", "'objects'", "'tasks'"]
+        table_names = ','.join(tables)
 
-    cursor = connection.cursor()
+        SQL = f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name in ({table_names});"
+        num = con.execute(SQL).fetchone()[0]
+        if num != len(tables):
+            db_create_tables()
+
+
+def db_create_tables():
 
     cursor.execute('''CREATE TABLE users(
       id INTEGER PRIMARY KEY,
@@ -41,6 +48,7 @@ def db_start():
       status TEXT NOT NULL,
       time_stamp NUMERIC NOT NULL,
       deadline NUMERIC NOT NULL,
+      group TEXT NOT NULL, 
       report TEXT NULL,
       feedback TEXT NULL,
       FOREIGN KEY (object_id ,object_county, object_address) REFERENCES objects(id , county, address)
@@ -48,12 +56,70 @@ def db_start():
     )''')
 
     connection.commit()
-    #connection.close()
+    # connection.close()
 
 
-def create_user(id):
+def create_user(id, name, type, login, password):
     cursor.execute("INSERT OR IGNORE INTO users VALUES(?, ?, ?, ?, ?)",
-                   (id, '', '', '', ''))
+                   (id, name, type, login, password))
     connection.commit()
-    user = cursor.execute("SELECT 1 FROM users WHERE id == '{key}'".format(key=id)).fetchone()
+
+
+def get_user_by_id(id):
+    user = cursor.execute("SELECT * FROM users WHERE id == '{key}'".format(key=id)).fetchone()
     return user
+
+
+def remove_user_by_id(id):
+    cursor.execute("DELETE FROM users WHERE customer_id == '{key}'".format(key=id))
+
+
+def create_objects(id,
+                   county,
+                   district,
+                   address,
+                   object_type,
+                   condition,
+                   square,
+                   owner,
+                   actual_user,
+                   media):
+    cursor.execute("INSERT OR IGNORE INTO users VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                   (id, county, district, address, object_type, condition, square, owner, actual_user, media))
+    connection.commit()
+
+
+def get_objects_by_id_country_address(id, county, address):
+    user = cursor.execute(
+        "SELECT * FROM users WHERE (id, county, address) == '{key}'".format(key=(id, county, address))).fetchone()
+    return user
+
+
+def remove_objects_by_id_country_address(id, county, address):
+    cursor.execute("DELETE FROM users WHERE (id, county, address) == '{key}'".format(key=(id, county, address)))
+
+
+def create_tasks(id,
+                 object_id,
+                 object_county,
+                 object_address,
+                 description,
+                 status,
+                 time_stamp,
+                 deadline,
+                 group,
+                 report,
+                 feedback):
+    cursor.execute("INSERT OR IGNORE INTO users VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?. ?)",
+                   (id, object_id, object_county, object_address, description, status, time_stamp, deadline, group, report, feedback))
+    connection.commit()
+
+
+def get_objects_by_id(id):
+    user = cursor.execute(
+        "SELECT * FROM users WHERE id == '{key}'".format(key=id)).fetchone()
+    return user
+
+
+def remove_objects_by_id(id):
+    cursor.execute("DELETE FROM users WHERE id == '{key}'".format(key=id))
