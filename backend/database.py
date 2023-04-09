@@ -99,6 +99,77 @@ def db_create_tables():
     # connection.close()
 
 
+def get_reestr_info(wg_id, object_type):
+    result = cursor.execute("""select tasks.object_id, tasks.object_county, objects.district, tasks.object_address, objects.condition, objects.square, objects.owner, objects.actual_user, objects.cadastral_number from tasks
+					join objects
+					on tasks.object_id = objects.id
+					where tasks.wg_id = {key_wg_id}
+					and objects.object_type = '{key_object_type}'"""
+					.format(key_wg_id=wg_id, key_object_type=object_type)).fetchall()
+    connection.commit()
+    return result
+
+def get_user_info(user_id):
+    result = cursor.execute("""select name, login, type from users
+					where id = '{user}'"""
+					.format(user=user_id)).fetchone()
+    connection.commit()
+    return result
+
+def get_meetings_info(meeting_id):
+    result = cursor.execute("""SELECT meeting.date_of_meeting, work_groups.name,  meeting.reference FROM meeting
+					join work_groups
+					on meeting.wg_id = work_groups.id
+					WHERE meeting.id = {key_meet}
+					"""
+					.format(key_meet=meeting_id)).fetchone()
+    connection.commit()
+    return result
+
+def get_wg_tasks(wg_id):
+    result = cursor.execute("""SELECT meeting.date_of_meeting, work_groups.name,  meeting.reference FROM meeting
+					join work_groups
+					on meeting.wg_id = work_groups.id
+					WHERE meeting.id = {key_meet}
+					"""
+					.format(key_meet=wg_id)).fetchone()
+    connection.commit()
+    return result
+
+def get_new_objects(wg_id):
+    result = cursor.execute("""SELECT COUNT(*) as 'Новый' FROM tasks
+						where wg_id = {key} and status = 'Новый'
+						"""
+						.format(key=wg_id)).fetchone()
+    connection.commit()
+    return result
+
+def get_process_objects(wg_id):
+    result = cursor.execute("""SELECT COUNT(*) as 'В работе' FROM tasks
+						where wg_id = {key} and status = 'В работе'
+						"""
+						.format(key=wg_id)).fetchone()
+    connection.commit()
+    return result
+
+def get_done_objects(wg_id):
+    result = cursor.execute("""SELECT COUNT(*) as 'Завершено' FROM tasks
+						where wg_id = {key} and status = 'Завершено'
+						"""
+						.format(key=wg_id)).fetchone()
+    connection.commit()
+    return result
+
+def get_object_info(wg_id, object_type):
+    result = cursor.execute("""select tasks.object_id, tasks.object_county, objects.district, tasks.object_address, objects.condition, objects.square, objects.owner, objects.actual_user, objects.cadastral_number from tasks
+					join objects
+					on tasks.object_id = objects.id
+					where tasks.wg_id = {key_wg_id}
+					and objects.object_type = '{key_object_type}'"""
+					.format(key_wg_id=wg_id, key_object_type=object_type)).fetchall()
+    connection.commit()
+    return result
+
 async def create_user(id, name, type, login, password):
     cursor.execute("INSERT OR IGNORE INTO users VALUES(?, ?, ?, ?, ?)",
                    (id, name, type, login, password))
@@ -147,11 +218,11 @@ async def create_tasks(id,
                  status,
                  time_stamp,
                  deadline,
-                 group,
+                 wg_id,
                  report,
                  feedback):
     cursor.execute("INSERT OR IGNORE INTO users VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?. ?)",
-                   (id, object_id, object_county, object_address, description, status, time_stamp, deadline, group, report, feedback))
+                   (id, object_id, object_county, object_address, description, status, time_stamp, deadline, wg_id, report, feedback))
     connection.commit()
 
 
@@ -163,3 +234,65 @@ async def get_objects_by_id(id):
 
 async def remove_objects_by_id(id):
     cursor.execute("DELETE FROM users WHERE id == '{key}'".format(key=id))
+
+async def m(id):
+    a = '''
+    SELECT id, date_of_meeting, name,  reference
+    FROM meeting WHERE id == '{key}' 
+    inner join groups_status
+    on meeting.wg_id == groups_status.id
+    '''.fetchone()
+
+
+def get_test_query(id):
+    connection = sqlite3.connect('backend/db/database.db')
+    cursor = connection.cursor()
+
+    a = f'''
+    SELECT meeting.id, meeting.date_of_meeting, work_groups.name, meeting.reference 
+    FROM meeting 
+    JOIN work_groups ON meeting.wg_id = work_groups.id 
+    WHERE meeting.id = {id}
+    '''
+
+    a = cursor.execute(a).fetchone()
+
+    connection.commit()
+    connection.close()
+
+    return a
+
+
+def create_meeting(id,
+      agenda_id,
+      wg_id,
+      date_of_meeting,
+      reference):
+    connection = sqlite3.connect('backend/db/database.db')
+    cursor = connection.cursor()
+
+    cursor.execute("INSERT OR IGNORE INTO meeting VALUES(?, ?, ?, ?, ?)",
+                   (id, agenda_id, wg_id, date_of_meeting, reference))
+    connection.commit()
+    connection.close()
+
+def create_groups_status(id,
+      wg_status,
+      report,
+      approved):
+    connection = sqlite3.connect('backend/db/database.db')
+    cursor = connection.cursor()
+
+    cursor.execute("INSERT OR IGNORE INTO groups_status VALUES(?, ?, ?, ?)",
+                   (id, wg_status, report, approved))
+    connection.commit()
+    connection.close()
+
+def create_work_groups(id, name):
+    connection = sqlite3.connect('backend/db/database.db')
+    cursor = connection.cursor()
+
+    cursor.execute("INSERT OR IGNORE INTO work_groups VALUES(?, ?)",
+                   (id, name))
+    connection.commit()
+    connection.close()
