@@ -7,7 +7,7 @@ cursor = connection.cursor()
 async def db_start():
 
     with connection as con:
-        tables = ["'users'", "'objects'", "'tasks'", "'meeting'", "'agenda'"]
+        tables = ["'users'", "groups_status", "work_groups", "'objects'", "'tasks'", "'meeting'", "'agenda'"]
         table_names = ','.join(tables)
 
         SQL = f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name in ({table_names});"
@@ -18,68 +18,101 @@ async def db_start():
 
 async def db_create_tables():
 
-    cursor.execute('''CREATE TABLE users(
-      id INTEGER PRIMARY KEY,
-      name TEXT NOT NULL,
-      type TEXT NOT NULL,
-      login TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL)
-
-     ''')
-
-    cursor.execute('''CREATE TABLE objects(
-      id INTEGER,
+    cursor.execute('''CREATE TABLE IF NOT EXISTS objects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       county TEXT NOT NULL,
       district TEXT NOT NULL,
       address TEXT NOT NULL,
+      cadastral_number TEXT,
       object_type TEXT NOT NULL,
-      condition TEXT NOT NULL, 
+      condition TEXT NOT NULL,
       square REAL NOT NULL,
       owner TEXT NOT NULL,
       actual_user TEXT NOT NULL,
       additional_info TEXT,
-      media BLOB NOT NULL,
-      PRIMARY KEY(id, county , address)
+      media BLOB NOT NULL
 
     )''')
 
-    cursor.execute('''CREATE TABLE tasks(
-      id INTEGER,
+    #county - ЗАО, ЦАО и так далее
+    cursor.execute('''CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       object_id INTEGER NOT NULL,
       object_county TEXT NOT NULL,
       object_address TEXT NOT NULL,
       description TEXT NOT NULL,
-      status TEXT NOT NULL,
-      time_stamp NUMERIC NOT NULL,
-      deadline NUMERIC NOT NULL,
-      groups TEXT NOT NULL, 
-      report TEXT NULL,
-      feedback TEXT NULL,
-      PRIMARY KEY (id , groups)
-      FOREIGN KEY (object_id ,object_county, object_address) REFERENCES objects(id , county, address)
-      
+      status TEXT NOT NULL DEFAULT 'new',
+      time_stamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      deadline TIMESTAMP NOT NULL,
+      wg_id INTEGER NOT NULL,
+      wg_report TEXT DEFAULT NULL,
+      feedback TEXT DEFAULT NULL,
+      closed BOOLEAN DEFAULT false
+    
     )''')
 
+    cursor.execute('''CREATE TABLE IF NOT EXISTS work_groups (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name VARCHAR(255) NOT NULL
 
-    cursor.execute('''CREATE TABLE agenda(
-      id INTEGER,
-      task_id INTEGER NOT NULL,
-      groups TEXT NOT NULL,
-      date NUMERIC NOT NULL,
-      status NUMERIC TRUE,
-      FOREIGN KEY (task_id , groups) REFERENCES tasks(id, groups)
-      PRIMARY KEY (id , groups)
     )''')
-
-    cursor.execute('''CREATE TABLE meeting(
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS groups_status (
       id INTEGER PRIMARY KEY,
-      agenda_id INTEGER NOT NULL,
-      groups TEXT NOT NULL,
-      date_of_meeting BLOB NOT NULL,
-      reference TEXT,
-      FOREIGN KEY(agenda_id , groups) REFERENCES agenda(id , groups)
+      wg_status TEXT NOT NULL,
+      report TEXT DEFAULT NULL,
+      approved BOOLEAN DEFAULT NULL
 
     )''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS meeting (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agenda_id INTEGER NOT NULL,
+      wg_id INTEGER NOT NULL,
+      date_of_meeting TIMESTAMP NOT NULL,
+      reference TEXT DEFAULT NULL
+
+    )''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS agenda (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      task_id INTEGER,
+      wg_id INTEGER NOT NULL,
+      date TIMESTAMP,
+      status BOOLEAN NOT NULL
+
+    )''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      login TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL
+
+     )''')
+    
+    cursor.execute(''' PRAGMA foreign_keys = ON;
+
+    ALTER TABLE tasks ADD FOREIGN KEY (object_id) REFERENCES objects(id);
+
+    ALTER TABLE tasks ADD FOREIGN KEY (wg_id) REFERENCES work_groups(id);
+
+    ALTER TABLE groups_status ADD FOREIGN KEY (id) REFERENCES tasks(id);
+
+    ALTER TABLE meeting ADD FOREIGN KEY (agenda_id) REFERENCES agenda(id);
+
+    ALTER TABLE meeting ADD FOREIGN KEY (wg_id) REFERENCES work_groups(id);
+
+    ALTER TABLE agenda ADD FOREIGN KEY (task_id) REFERENCES tasks(id);
+
+    ALTER TABLE agenda ADD FOREIGN KEY (wg_id) REFERENCES work_groups(id);
+    ''')
+
+
+
+
+
 
     connection.commit()
     # connection.close()

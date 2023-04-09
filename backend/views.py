@@ -7,7 +7,8 @@ import requests
 import json
 from backend import database
 
-database.db_start()
+database.db_create_tables()
+# database.db_start()
 
 @csrf_exempt
 def index(request):
