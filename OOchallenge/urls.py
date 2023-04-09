@@ -23,7 +23,8 @@ from django.views.generic import TemplateView
 from backend import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', views.index),
+    path('api/', views.api),
+    re_path('object/', views.object)
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
