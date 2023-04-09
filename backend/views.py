@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import json
-from backend import database
+import database
 
 database.db_create_tables()
 # database.db_start()

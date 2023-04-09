@@ -1,10 +1,10 @@
 import sqlite3
 
-connection = sqlite3.connect('backend/db/database.db')
+connection = sqlite3.connect('db/database.db')
 cursor = connection.cursor()
 
 
-async def db_start():
+def db_start():
 
     with connection as con:
         tables = ["'users'", "groups_status", "work_groups", "'objects'", "'tasks'", "'meeting'", "'agenda'"]
@@ -16,7 +16,7 @@ async def db_start():
             db_create_tables()
 
 
-async def db_create_tables():
+def db_create_tables():
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS objects (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,8 +47,9 @@ async def db_create_tables():
       wg_id INTEGER NOT NULL,
       wg_report TEXT DEFAULT NULL,
       feedback TEXT DEFAULT NULL,
-      closed BOOLEAN DEFAULT false
-    
+      closed INTEGER DEFAULT 0,
+      FOREIGN KEY (object_id) REFERENCES objects(id),
+      FOREIGN KEY (wg_id) REFERENCES work_groups(id)
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS work_groups (
@@ -61,8 +62,8 @@ async def db_create_tables():
       id INTEGER PRIMARY KEY,
       wg_status TEXT NOT NULL,
       report TEXT DEFAULT NULL,
-      approved BOOLEAN DEFAULT NULL
-
+      approved INTEGER DEFAULT NULL,
+      FOREIGN KEY (id) REFERENCES tasks(id)
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS meeting (
@@ -70,8 +71,9 @@ async def db_create_tables():
       agenda_id INTEGER NOT NULL,
       wg_id INTEGER NOT NULL,
       date_of_meeting TIMESTAMP NOT NULL,
-      reference TEXT DEFAULT NULL
-
+      reference TEXT DEFAULT NULL,
+      FOREIGN KEY (agenda_id) REFERENCES agenda(id),
+      FOREIGN KEY (wg_id) REFERENCES work_groups(id)
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS agenda (
@@ -79,8 +81,9 @@ async def db_create_tables():
       task_id INTEGER,
       wg_id INTEGER NOT NULL,
       date TIMESTAMP,
-      status BOOLEAN NOT NULL
-
+      status INTEGER DEFAULT 0 NOT NULL,
+      FOREIGN KEY (task_id) REFERENCES tasks(id),
+      FOREIGN KEY (wg_id) REFERENCES work_groups(id)
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
@@ -91,28 +94,6 @@ async def db_create_tables():
       password TEXT NOT NULL
 
      )''')
-    
-    cursor.execute(''' PRAGMA foreign_keys = ON;
-
-    ALTER TABLE tasks ADD FOREIGN KEY (object_id) REFERENCES objects(id);
-
-    ALTER TABLE tasks ADD FOREIGN KEY (wg_id) REFERENCES work_groups(id);
-
-    ALTER TABLE groups_status ADD FOREIGN KEY (id) REFERENCES tasks(id);
-
-    ALTER TABLE meeting ADD FOREIGN KEY (agenda_id) REFERENCES agenda(id);
-
-    ALTER TABLE meeting ADD FOREIGN KEY (wg_id) REFERENCES work_groups(id);
-
-    ALTER TABLE agenda ADD FOREIGN KEY (task_id) REFERENCES tasks(id);
-
-    ALTER TABLE agenda ADD FOREIGN KEY (wg_id) REFERENCES work_groups(id);
-    ''')
-
-
-
-
-
 
     connection.commit()
     # connection.close()
