@@ -117,7 +117,7 @@ VITE_APP_DIR = BASE_DIR / "frontend/src"
 STATIC_ROOT = "staticfiles"
 
 #или так STATIC_URL = "/static/"
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     VITE_APP_DIR / "dist",

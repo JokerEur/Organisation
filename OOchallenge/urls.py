@@ -23,7 +23,16 @@ from django.views.generic import TemplateView
 from backend import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', views.index),
+    re_path('api/prot_table2', views.api_prot_table2),
+    re_path('api/prot_table1', views.api_prot_table1),
+    re_path('api/prot', views.api_prot),
+    re_path('api/download_excel', views.download_excel, name='download_excel'),
+    re_path('api/obj_table', views.api_obj_table),
+    re_path('api/obj', views.api_obj),
+    path('api/table', views.api_table),
+    path('api/meet', views.api_meet),
+    re_path('object/', views.object),
+    re_path('protocol/', views.protocol)
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

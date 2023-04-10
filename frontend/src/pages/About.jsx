@@ -1,37 +1,49 @@
-import React, {Fragment, useState} from "react";
-import Modal from "../components/modal";
+import React, { useEffect } from 'react'; 
+import '../App.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+import MyNav from "../components/MyNav"; 
  
-
-export default function Example() {
-  
-  const [modalOn, setModalOn] = useState(false);
-  const [choice, setChoice] = useState(false)
-
-  const clicked = () => {
-    setModalOn(true)
-  }
-  return (<div>
-
-    <div className="flex justify-center">
-      <div className="flex  cursor-pointer justify-center w-1/3  bg-blue-400 p-4  m-6 rounded-md text-white"
-
-        onClick={clicked}
-      >
-        Bite Me
-      </div>
-    </div>
-
-  {/* conditionally display the result of the action if user confirms  */}
-    {choice &&
-    <div className="flex justify-center">
-      <div className="flex  justify-center w-1/3 bg-red-400 m-4 p-6 text-lg text-white "> You have been bitten !!!</div>
-      </div>
-    }
-
-
-    {modalOn && < Modal setModalOn={setModalOn} setChoice={setChoice} />}
-
-  </div>
-
-  );
-}
+ 
+ 
+function About() { 
+  return ( 
+ 
+    <div className='App'> 
+      <MyNav className="z-30"/> 
+      
+      <table className="table1 ml-0"> 
+        <tr> 
+          <td> 
+            <a href="https://t.me/NeAlyssa" target="_blank" draggable="false" display="false"> 
+              <img src= "/static/alisa.png" className='left' draggable="false" width="100%" float="left" /> 
+            </a> 
+          </td> 
+          <td> 
+            <a href="https://t.me/BurykinaA" target="_blank" draggable="false" display="false"> 
+              <img src="/static/alina.png" className='left' draggable="false" width="100%" float="left" /> 
+            </a> 
+          </td> 
+          <td> 
+            <a href="https://t.me/servan_t" target="_blank" draggable="false" display="false"> 
+              <img src="/static/ivan.png" className='left' draggable="false" width="100%" float="left" /> 
+            </a> 
+          </td> 
+          <td> 
+            <a href="https://t.me/KD_ATW" target="_blank" draggable="false" display="false"> 
+              <img src="/static/kirill.png"className='left' draggable="false" width="100%" float="left" /> 
+            </a> 
+          </td> 
+          <td> 
+ 
+            <a href="https://t.me/kokosikEH" target="_blank" draggable="false" display="false"> 
+              <img src="static/liza.png" className='left' draggable="false" width="100%" float="left" /> 
+            </a> 
+          </td> 
+        </tr> 
+      </table> 
+    </div> 
+ 
+  ); 
+}; 
+ 
+export default About;

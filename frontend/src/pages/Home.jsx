@@ -8,7 +8,7 @@ import Button from 'react-bootstrap/Button';
 import MyNav from "../components/MyNav";
 import { imgg } from '../mockData';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
-import Object from "../components/modal";
+import Object from "../components/modal/modall";
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -28,25 +28,45 @@ const slideRight = () => {
 
 
 function Home() {
-  // const [data, getData] = useState([])
-  // const URL = 'https://jsonplaceholder.typicode.com/posts';
+  const [tab, getTab] = useState([])
+  const URL = 'http://127.0.0.1:8000/api';
 
-  // useEffect(() => {
-  //     fetchData()
-  // }, [])
+  useEffect(() => {
+      fetchTab()
+  }, [])
 
 
-  // const fetchData = () => {
-  //     fetch(URL)
-  //         .then((res) =>
-  //             res.json())
+  const fetchTab = () => {
+      fetch('http://127.0.0.1:8000/api/table')
+          .then((res) =>
+              res.json())
 
-  //         .then((response) => {
-  //             console.log(response);
-  //             getData(response);
-  //         })
+          .then((response) => {
+              console.log(response);
+              getTab(response);
+          })
 
-  // }
+  }
+
+    const [mit, getMit] = useState([])
+
+  useEffect(() => {
+      fetchMit()
+  }, [])
+
+
+  const fetchMit = () => {
+      fetch('http://127.0.0.1:8000/api/meet')
+          .then((res) =>
+              res.json())
+
+          .then((response) => {
+              console.log(response);
+              getMit(response);
+          })
+
+  }
+
   const chart = [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}, {name: 'Page b', uv: 300, pv: 2400, amt: 2400}, {name: 'Page c', uv: 300, pv: 2400, amt: 2400}, {name: 'Page d', uv: 200, pv: 2400, amt: 2400},{name: 'Page e', uv: 278, pv: 2400, amt: 2400}, {name: 'Page f', uv: 189, pv: 2400, amt: 2400}]
   const dataa = [
     {
@@ -104,42 +124,51 @@ const clicked = () => {
   return (
         
     <div>
-       <MyNav/>
+       <MyNav className="z-30"/>
 
-       <div className="box3 mt-[70px]">
-          <div className="box">
+       <div className="box3 mt-[70px] z-10">
+          <div className="box z-0">
             <b className='right'>
-              реестр
+              Реестр
+                <button
+        className="bg-red-100 mt-1 text-black active:bg-red-200 font-bold uppercase text-sm ml-10 px-6 py-3 rounded mr-1 mb-1 ease-linear transition-all "
+        type="button"
+        onClick={clicked}
+      >
+        Создать объект
+      </button>
+
+    {modalOn && < Object setModalOn={setModalOn} setChoice={setChoice} />}
             </b>  
-            <div className="h-[450px] overflow-y-scroll scroll whitespace-nowrap scroll-smooth scrollbar-hide">
+            <div className="h-[430px] overflow-y-scroll scroll whitespace-nowrap scroll-smooth scrollbar-hide">
               <Table >
               <thead>
                 <tr>
-                  <th>#</th>
                   <th>ID объекта</th>
-                  <th>name</th>
-                  <th>info</th>
-                  <th>date</th>
-                  
-                  <th>location</th>
-                  <th>status</th>
+                  <th>округ</th>
+                  <th>район</th>
+                  <th>адрес</th>
+                  <th>тип</th>
+                  <th>состояние</th>
+                  <th>собственник</th>
                 </tr>
               </thead>
+
               <tbody>
-                {imgg.map((item, i) => (
+                {tab.map((item, i) => (
                              <tr >
-                                <td>{item.id}</td>
+                                
                                 <td>
-                                  
-                                  <Link to={'/object/'+ item.id} >
-                                    <b > 345{item.id}</b>
+                                  <Link to={'/object/'+ item.id + '?query='+ item.id} >
+                                    <b className="underline"> {item.id}</b>
                                   </Link>
-                                </td>
-                                <td>{item.tur}</td>
-                                <td>{item.wen}</td>
-                                <td>{item.th}</td>
-                                <td>{item.fr}</td>
-                                <td>{item.sn}</td>
+                                </td>                              
+                                <td>{item.county}</td>
+                                <td>{item.district}</td>
+                                <td>{item.address}</td>
+                                <td>{item.object_type}</td>
+                                <td>{item.condition}</td>
+                                <td>{item.owner}</td>
                             </tr>
                             
                             
@@ -150,44 +179,68 @@ const clicked = () => {
             
           </div>
         </div>
-        <button
-        className="bg-red-100 text-black active:bg-red-200 font-bold uppercase text-sm ml-10 px-6 py-3 rounded mr-1 mb-1 ease-linear transition-all "
-        type="button"
-        onClick={clicked}
-      >
-        Создать объект
-      </button>
-
-    {modalOn && < Object setModalOn={setModalOn} setChoice={setChoice} />}
+      
 
        <div className="menu mt-[20px]">
         <div className="box1">
-        <div className='relative flex items-center ml-[-45px] w-[105%]'>
-        <MdChevronLeft className='opacity-50 cursor-pointer hover:opacity-100' onClick={slideLeft} size={40} />
-        <div
-          id='slider'
-          className='w-full h-[330px] mx-[1%]  h-full overflow-x-scroll scroll whitespace-nowrap scroll-smooth scrollbar-hide'
-        >
-          {imgg.map((item) => (
-            <img
-              className='w-[300px] inline-block mt-2 p-2 cursor-pointer hover:scale-110 ease-in-out duration-300 rounded-2xl'
-              src={item.url}
-              alt='/'
-            />
+        
+    
+<div class="flex flex-col bg-white m-auto p-auto">
+
+      <div class="flex overflow-x-scroll mt-10  scrollbar-hide pb-10 hide-scroll-bar rounded-2xl" >
+        <div class="flex flex-nowrap   scrollbar-hide rounded-2xl" > 
+        {mit.map((item) => (
+           <div class="inline-block px-3">
+           <div
+             class="w-64 h-64 max-w-xs overflow-hidden rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out"
+           >
+            <black className='right '>
+            <b>встреча</b>
+            <div className="pl-2 text-left"> <br/><br/>
+            <b className="text-xl">Дата: </b> 
+            <b className="text-xl font-normal">{item.date_of_meeting}</b>
+            <br/>
+            <b className="text-xl">Раб. группа: </b> 
+            <b className="text-xl font-normal">{item.group} </b>
+             
+            <br/>
+                <a href={item.url} >
+            <b className="text-xl underline ">Ссылка</b>
+                </a>
+             
+            <br/>
+            <Link to={'/protocol/'+ item.agenda + '?query='+ item.agenda} >
+            <b className="text-xl underline">Повестка: {item.agenda}</b>
+                                  </Link><br/>
+            </div>
+            
+
+          </black>
+           </div>
+         </div>
+             
+            
           ))}
+          
+         
         </div>
-        <MdChevronRight className='opacity-50 cursor-pointer hover:opacity-100' onClick={slideRight} size={40} />
       </div>
+</div>
+
         </div>
 
       <div className="box2"> 
           <div className="boxx mt-[10px] ml-[-10px] w-[104%]">
           <b className='right'>
-            карта
+            Kарта
           </b>
             <div className='h-[310px]'>
                <YMaps > 
               <Map height= '295px' width='100%' defaultState={{ center: [55.75, 37.57], zoom: 9}} >
+                {mit.map((item, i) => (
+                              <Placemark geometry={item.placemark} />
+                              
+                          ))}
               <Placemark geometry={[55.684758, 37.738521]} />
               </Map>
            </YMaps>
@@ -199,7 +252,7 @@ const clicked = () => {
       </div>
       <div className="menu mt-[20px]">
         <div className="box1 mt-[-150px]">
-            <div className="box">
+            <div className="box h-[450px]">
               
               <ResponsiveContainer  width="100%" height="100%" >
           <LineChart
@@ -226,10 +279,14 @@ const clicked = () => {
               
             </div>
 
-            <div className="box2 h-full"> 
-          <div className="box mt-[-150px] ">
-          
+            <div className="box2 h-[500px]"> 
+          <div className="box h-[450px] mt-[-150px] ">
+          <br/>
            <b className="right">info</b>
+           <br/><br/>
+           На данный момент график не представляет какой-либо анализ.
+           <br/>
+           Это демонстрационный вариант, при наличии достаточного количества данных можно будет сформировать аналитику.
           </div>
       </div>
           </div>
