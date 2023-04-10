@@ -40,12 +40,16 @@ def make_meet_inf():
 
 @csrf_exempt
 def index(request):
+    q = request.POST
+    print(q)
+    if 'district' in q.keys():
+        print(1)
+        make_object(q)
+
     return render(request, "base.html")
 
 
 def update_meeting(q):
-    print(q)
-
     agenda_id = q['id']
     d = q['date_of_meeting']
     ref = q['reference']
