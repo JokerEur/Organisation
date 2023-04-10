@@ -17,30 +17,31 @@ def db_create_tables():
     connection = sqlite3.connect('backend/db/database.db')
     cursor = connection.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS objects (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      county TEXT NOT NULL,
-      district TEXT NOT NULL,
-      address TEXT NOT NULL,
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      county TEXT  ,
+      district TEXT  ,
+      address TEXT  ,
       cadastral_number TEXT,
-      object_type TEXT NOT NULL,
-      condition TEXT NOT NULL,
-      square REAL NOT NULL,
-      owner TEXT NOT NULL,
-      actual_user TEXT NOT NULL,
+      object_type TEXT  ,
+      condition TEXT  ,
+      coordinate TEXT,
+      square REAL  ,
+      owner TEXT  ,
+      actual_user TEXT  ,
       additional_info TEXT,
-      media BLOB NOT NULL
+      media BLOB  
 
     )''')
 
     #county - ЗАО, ЦАО и так далее
     cursor.execute('''CREATE TABLE IF NOT EXISTS tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      object_id INTEGER NOT NULL,
-      description TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'new',
-      time_stamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      deadline TIMESTAMP NOT NULL,
-      wg_id INTEGER NOT NULL,
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      object_id INTEGER  ,
+      description TEXT  ,
+      status TEXT   DEFAULT 'new',
+      time_stamp TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+      deadline TIMESTAMP  ,
+      wg_id INTEGER  ,
       wg_report TEXT DEFAULT NULL,
       feedback TEXT DEFAULT NULL,
       closed INTEGER DEFAULT 0,
@@ -49,56 +50,71 @@ def db_create_tables():
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS work_groups (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name VARCHAR(255) NOT NULL
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      name VARCHAR(255)  
 
     )''')
     
     cursor.execute('''CREATE TABLE IF NOT EXISTS groups_status (
-      id INTEGER PRIMARY KEY,
-      wg_status TEXT NOT NULL,
+      id INTEGER NOT NULL PRIMARY KEY,
+      wg_status TEXT  ,
       report TEXT DEFAULT NULL,
       approved INTEGER DEFAULT NULL,
       FOREIGN KEY (id) REFERENCES tasks(id)
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS meeting (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      agenda_id INTEGER NOT NULL,
-      wg_id INTEGER NOT NULL,
-      date_of_meeting TIMESTAMP NOT NULL,
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      agenda_id INTEGER  ,
+      wg_id INTEGER  ,
+      date_of_meeting TIMESTAMP  ,
       reference TEXT DEFAULT NULL,
       FOREIGN KEY (agenda_id) REFERENCES agenda(id),
       FOREIGN KEY (wg_id) REFERENCES work_groups(id)
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS agenda (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       task_id INTEGER,
-      wg_id INTEGER NOT NULL,
+      wg_id INTEGER  ,
       date TIMESTAMP,
-      status INTEGER DEFAULT 0 NOT NULL,
+      status INTEGER DEFAULT 0  ,
       FOREIGN KEY (task_id) REFERENCES tasks(id),
       FOREIGN KEY (wg_id) REFERENCES work_groups(id)
     )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      type TEXT NOT NULL,
-      login TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      name TEXT  ,
+      type TEXT  ,
+      login TEXT UNIQUE  ,
+      password TEXT  
 
      )''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS media(
+        id INTEGER NOT NULL ,
+        object_id INTEGER NOT NULL ,
+        link TEXT NOT NULL , 
+        FOREIGN KEY (object_id) REFERENCES task(id)
+    )''')
+
+    cursor.execute('''create trigger if not exists agenda_autogenerate
+        after INSERT on tasks
+        begin
+        insert into agenda (task_id, wg_id, date, status)
+        values (new.id, new.wg_id, new.deadline, new.status);
+        end;
+    ''')
 
     connection.commit()
     connection.close()
 
-def insert_object(id, object_id, county, district, address, cadastral_number, object_type, condition, square, owner, actual_user, additional_info, media):
+def insert_object(id, county, district, address, cadastral_number, coordinate, object_type, condition, square, owner, actual_user, media, additional_info):
     connection = sqlite3.connect('backend/db/database.db')
     cursor = connection.cursor()
     cursor.execute("INSERT OR IGNORE INTO objects VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                   (id, object_id, county, district, address, cadastral_number, object_type, condition, square, owner, actual_user, additional_info, media))
+                   (id, county, district, address, cadastral_number, coordinate, object_type, condition, square, owner, actual_user, media, additional_info))
     connection.commit()
     connection.close()
 

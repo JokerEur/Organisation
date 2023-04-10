@@ -1,5 +1,5 @@
 import React, {Fragment, useState} from "react";
-import Example from "../form/formm"
+import Examples from "../form/formtaskstate"
 
 const handleOKClick = () => {
     setChoice(true)
@@ -10,14 +10,15 @@ const handleCancelClick = () => {
     setModalOn(false)
 }
 
-const Task = ({ setModalOn, setChoice }) => {
+const Status = ({ setModalOn, setChoice }) => {
 
     return (
 
         <div className="  w=[50%] bg-zinc-200 opacity-100 fixed inset-0 z-50   ">
-            <Example/>
+            <Examples/>           
         </div>
 
     );
 }
-export default Task
+
+export default Status

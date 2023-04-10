@@ -11,7 +11,7 @@ import { YMaps, Map, Placemark } from '@pbe/react-yandex-maps';
 import { Link, useParams} from 'react-router-dom';
 import Task from "../components/modal/modaltask";
 import Report from "../components/modal/modalreport";
-
+import Status from "../components/modal/modaltaskstate";
 
 const slideLeft = () => {
   var slider = document.getElementById('slider');
@@ -30,25 +30,44 @@ function Object() {
   // console.log(params)
 
 
-  const [data, getData] = useState([])
-  const URL = 'https://jsonplaceholder.typicode.com/posts/' ;
+    const [tab, getTab] = useState([])
+  const URL = 'http://127.0.0.1:8000/api';
 
   useEffect(() => {
-      fetchData()
+      fetchTab()
   }, [])
 
-  const fetchData = () => {
-      fetch('https://jsonplaceholder.typicode.com/posts/'+ params.id)
+
+  const fetchTab = () => {
+      fetch('http://127.0.0.1:8000/api/obj_table?query='+ params.id)
           .then((res) =>
               res.json())
 
           .then((response) => {
               console.log(response);
-              getData(response);
+              getTab(response);
           })
 
   }
 
+    const [mit, getMit] = useState([])
+
+  useEffect(() => {
+      fetchMit()
+  }, [])
+
+
+  const fetchMit = () => {
+      fetch('http://127.0.0.1:8000/api/obj?query='+ params.id)
+          .then((res) =>
+              res.json())
+
+          .then((response) => {
+              console.log(response);
+              getMit(response);
+          })
+
+  }
   const [jsons, getJsons] = useState([])
 
   useEffect(() => {
@@ -68,8 +87,8 @@ function Object() {
 }
   
 const [modalOn, setModalOn] = useState(false);
-
 const [modalOn1, setModalOn1] = useState(false);
+const [modalOn2, setModalOn2] = useState(false);
 const [choice, setChoice] = useState(false)
 
 const clicked = () => {
@@ -77,6 +96,9 @@ const clicked = () => {
 }
 const clicked1 = () => {
   setModalOn1(true)
+}
+const clicked2 = () => {
+  setModalOn2(true)
 }
   
   return (
@@ -96,23 +118,23 @@ const clicked1 = () => {
             <br/>
             <br/>
               <b className="text-xl">Адрес: </b>
-              <b className="text-xl font-normal">{data.address}</b>
+              <b className="text-xl font-normal">{mit.adress}</b>
               
               <br/><br/>
               <b className="text-xl">Округ: </b>
-              <b className="text-xl font-normal">{data.county}</b>
+              <b className="text-xl font-normal">{mit.county}</b>
                
               <br/><br/>
               <b className="text-xl">Район: </b>
-              <b className="text-xl font-normal">{data.district}</b>
+              <b className="text-xl font-normal">{mit.district}</b>
                
               <br/><br/>
               <b className="text-xl">Координаты: </b>
-              <b className="text-xl font-normal">{data.coordinates}</b>
+              <b className="text-xl font-normal">{mit.coordinates}</b>
               
               <br/><br/>
               <b className="text-xl"> Кадастровый номер:</b>
-              <b className="text-xl font-normal">{data.cadastral_number}</b>
+              <b className="text-xl font-normal">{mit.cadastral_number}</b>
                
               <br/>
             </div>
@@ -121,15 +143,15 @@ const clicked1 = () => {
               <div className="boxxxx w-[100%]  mt-[5px] text-left pt-[5px] pl-[1%]">
               
               <b className="text-xl">Тип: </b>
-              <b className="text-xl font-normal">{data.object_type}</b>
+              <b className="text-xl font-normal">{mit.object_type}</b>
               <br/>
               <br/>
               <b className="text-xl">Состояние: </b>
-              <b className="text-xl font-normal">{data.condition}</b>
+              <b className="text-xl font-normal">{mit.condition}</b>
               <br/>
               <br/>
               <b className="text-xl">Площадь: </b>
-              <b className="text-xl font-normal">{data.square}</b>
+              <b className="text-xl font-normal">{mit.square}</b>
                
                <br/>
                 
@@ -138,15 +160,15 @@ const clicked1 = () => {
               
 
               <b className="text-xl">Ссобственник: </b>
-              <b className="text-xl font-normal">{data.owner}</b>
+              <b className="text-xl font-normal">{mit.owner}</b>
               
               <br/><br/>
               <b className="text-xl">Фактический пользователь: </b>
-              <b className="text-xl font-normal">{data.actual_user}</b>
+              <b className="text-xl font-normal">{mit.actual_user}</b>
               
               <br/><br/>
               <b className="text-xl ">Доп. информация: </b>
-              <b className="text-xl font-normal">{data.additional_info}</b>
+              <b className="text-xl font-normal">{mit.additional_info}</b>
                
               <br/><br/>
               
@@ -163,13 +185,13 @@ const clicked1 = () => {
           <br/>
             <b>Повестка</b>
             <br/><br/>
-            <Link to={'/protocol/'+ data.id + '?query='+ data.id } >
-            <b className="text-xl font-normal">{data.id}</b>
+            <Link to={'/protocol/'+ mit.agenda_id + '?query='+ mit.agenda_id } >
+            <b className="text-xl font-normal">ID повестки: {mit.agenda_id}</b>
                                   </Link>
             
             <br/><br/>
             <b className="text-xl"> Дата: </b>
-            <b className="text-xl font-normal">{data.date}</b>
+            <b className="text-xl font-normal">{mit.agenda_date}</b>
           
            
             
@@ -222,8 +244,17 @@ const clicked1 = () => {
       >
         Создать задачу
       </button>
+      <button
+        className="bg-red-100 text-black active:bg-red-200 font-bold uppercase text-sm mt-1 ml-10 px-6 py-3 rounded mr-1 mb-1 ease-linear transition-all "
+        type="button"
+        onClick={clicked2}
+      >
+        Изменить статус задачи
+      </button>
 
     {modalOn && < Task setModalOn={setModalOn} setChoice={setChoice} />}
+    
+    {modalOn2 && < Status setModalOn={setModalOn2} setChoice={setChoice} />}
     
     <button
         className="bg-red-100 text-black active:bg-red-200 font-bold uppercase text-sm ml-10 px-6 py-3 rounded mr-1 mb-1 ease-linear transition-all "
@@ -252,7 +283,7 @@ const clicked1 = () => {
                 </tr>
               </thead>
               <tbody>
-                {jsons.map((item, i) => (
+                {tab.map((item, i) => (
                             <tr >
                                 <td>
                                     <b >{item.id}</b></td>

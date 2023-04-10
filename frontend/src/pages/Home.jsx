@@ -28,25 +28,45 @@ const slideRight = () => {
 
 
 function Home() {
-  const [data, getData] = useState([])
+  const [tab, getTab] = useState([])
   const URL = 'http://127.0.0.1:8000/api';
 
   useEffect(() => {
-      fetchData()
+      fetchTab()
   }, [])
 
 
-  const fetchData = () => {
-      fetch(URL)
+  const fetchTab = () => {
+      fetch('http://127.0.0.1:8000/api/table')
           .then((res) =>
               res.json())
 
           .then((response) => {
               console.log(response);
-              getData(response);
+              getTab(response);
           })
 
   }
+
+    const [mit, getMit] = useState([])
+
+  useEffect(() => {
+      fetchMit()
+  }, [])
+
+
+  const fetchMit = () => {
+      fetch('http://127.0.0.1:8000/api/meet')
+          .then((res) =>
+              res.json())
+
+          .then((response) => {
+              console.log(response);
+              getMit(response);
+          })
+
+  }
+
   const chart = [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}, {name: 'Page b', uv: 300, pv: 2400, amt: 2400}, {name: 'Page c', uv: 300, pv: 2400, amt: 2400}, {name: 'Page d', uv: 200, pv: 2400, amt: 2400},{name: 'Page e', uv: 278, pv: 2400, amt: 2400}, {name: 'Page f', uv: 189, pv: 2400, amt: 2400}]
   const dataa = [
     {
@@ -107,7 +127,7 @@ const clicked = () => {
        <MyNav className="z-30"/>
 
        <div className="box3 mt-[70px] z-10">
-          <div className="box z-10">
+          <div className="box z-0">
             <b className='right'>
               Реестр
                 <button
@@ -131,12 +151,11 @@ const clicked = () => {
                   <th>тип</th>
                   <th>состояние</th>
                   <th>собственник</th>
-                  <th>фактический пользователь</th>
                 </tr>
               </thead>
 
               <tbody>
-                {data.map((item, i) => (
+                {tab.map((item, i) => (
                              <tr >
                                 
                                 <td>
@@ -150,7 +169,6 @@ const clicked = () => {
                                 <td>{item.object_type}</td>
                                 <td>{item.condition}</td>
                                 <td>{item.owner}</td>
-                                <td>{item.actual_user}</td>
                             </tr>
                             
                             
@@ -171,7 +189,7 @@ const clicked = () => {
 
       <div class="flex overflow-x-scroll mt-10  scrollbar-hide pb-10 hide-scroll-bar rounded-2xl" >
         <div class="flex flex-nowrap   scrollbar-hide rounded-2xl" > 
-        {data.map((item) => (
+        {mit.map((item) => (
            <div class="inline-block px-3">
            <div
              class="w-64 h-64 max-w-xs overflow-hidden rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out"
@@ -187,12 +205,14 @@ const clicked = () => {
              
             <br/>
             <b className="text-xl">Ссылка: </b>
+                <a href={item.url} >
             <b className="text-xl font-normal">{item.url}</b>
+                </a>
              
             <br/>
             <b className="text-xl">Повестка: </b>
-            <Link to={'/protocol/'+ data.agenda + '?query='+ data.agenda} >
-            <b className="text-xl font-normal">{data.agenda}</b>
+            <Link to={'/protocol/'+ item.agenda + '?query='+ item.agenda} >
+            <b className="text-xl font-normal">{item.agenda}</b>
                                   </Link><br/>
             </div>
             
@@ -219,7 +239,7 @@ const clicked = () => {
             <div className='h-[310px]'>
                <YMaps > 
               <Map height= '295px' width='100%' defaultState={{ center: [55.75, 37.57], zoom: 9}} >
-                {data.map((item, i) => (
+                {mit.map((item, i) => (
                               <Placemark geometry={item.placemark} />
                               
                           ))}

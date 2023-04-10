@@ -32,25 +32,79 @@ function Protocol() {
   // console.log(params)
 
 
-  const [data, getData] = useState([])
-  const URL = 'https://jsonplaceholder.typicode.com/posts/' ;
+  // const [data, getData] = useState([])
+  // const URL = 'https://jsonplaceholder.typicode.com/posts/' ;
+  //
+  // useEffect(() => {
+  //     fetchData()
+  // }, [])
+  //
+  // const fetchData = () => {
+  //     fetch('https://jsonplaceholder.typicode.com/posts/'+ params.id)
+  //         .then((res) =>
+  //             res.json())
+  //
+  //         .then((response) => {
+  //             console.log(response);
+  //             getData(response);
+  //         })
+  //
+  // }
+    const [tab1, getTab1] = useState([])
 
   useEffect(() => {
-      fetchData()
+      fetchTab1()
   }, [])
 
-  const fetchData = () => {
-      fetch('https://jsonplaceholder.typicode.com/posts/'+ params.id)
+
+  const fetchTab1 = () => {
+      fetch('http://127.0.0.1:8000/api/prot_table1?query='+ params.id)
           .then((res) =>
               res.json())
 
           .then((response) => {
               console.log(response);
-              getData(response);
+              getTab1(response);
+          })
+
+  }
+    const [tab2, getTab2] = useState([])
+
+  useEffect(() => {
+      fetchTab2()
+  }, [])
+
+
+  const fetchTab2 = () => {
+      fetch('http://127.0.0.1:8000/api/prot_table2?query='+ params.id)
+          .then((res) =>
+              res.json())
+
+          .then((response) => {
+              console.log(response);
+              getTab2(response);
           })
 
   }
 
+    const [mit, getMit] = useState([])
+
+  useEffect(() => {
+      fetchMit()
+  }, [])
+
+
+  const fetchMit = () => {
+      fetch('http://127.0.0.1:8000/api/prot?query='+ params.id)
+          .then((res) =>
+              res.json())
+
+          .then((response) => {
+              console.log(response);
+              getMit(response);
+          })
+
+  }
   const [jsons, getJsons] = useState([])
 
   useEffect(() => {
@@ -79,7 +133,26 @@ const clicked = () => {
 const clicked1 = () => {
   setModalOn1(true)
 }
-  
+  const [data, setData] = React.useState([]);
+
+    const handleDownloadClick = async () => {
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(data));
+
+        const response = await fetch('http://127.0.0.1:8000/api/download_excel/', {
+            method: 'POST',
+            body: formData
+        });
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
   return (
         
     <div>
@@ -107,7 +180,7 @@ const clicked1 = () => {
                 </tr>
               </thead>
               <tbody>
-                {jsons.map((item, i) => (
+                {tab1.map((item, i) => (
                             <tr >
                               <td><Link to={'/object/'+ item.id + '?query='+ item.id} >
                                     <b > {item.id}</b>
@@ -131,11 +204,13 @@ const clicked1 = () => {
           <br/>
             <b>Встреча</b>
             <div className="pl-2 text-left"> <br/>
-            дата: {data.date_of_meeting}
+            дата: {mit.date_of_meeting}
             <br/><br/>
-            раб. группа: {data.group}  
+            раб. группа: {mit.group}
             <br/><br/>
-            ссылка: {data.url}
+                <a href={mit.url} >
+            <b className="text-xl font-normal">Ссылка</b>
+                </a>
             <br/><br/>
             </div>
             
@@ -171,8 +246,9 @@ const clicked1 = () => {
             <button
             className="bg-red-100  text-black active:bg-red-200 font-bold uppercase text-sm ounded mx-[2%] my-1 ease-linear transition-all "
             type="button"
+            onClick={handleDownloadClick}
             >
-        Скачать повестку
+        Скачать реестр
       </button>
             <button
         className="bg-red-100  text-black active:bg-red-200 font-bold uppercase text-sm ounded mx-[2%] my-1 ease-linear transition-all "
@@ -207,7 +283,7 @@ const clicked1 = () => {
                 </tr>
               </thead>
               <tbody>
-                {jsons.map((item, i) => (
+                {tab2.map((item, i) => (
                             <tr >
                                 <td><Link to={'/protocol/'+ item.id + '?query='+ item.id} >
                                     <b > {item.id}</b>
